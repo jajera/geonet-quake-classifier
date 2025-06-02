@@ -1,0 +1,45 @@
+name: CI
+
+on: pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Install core dependencies
+      run: pip install -r requirements.txt
+
+    - name: Install development dependencies
+      run: pip install -r requirements-dev.txt
+
+    - name: Run flake8
+      run: flake8 .
+
+    - name: Run pylint
+      run: pylint quake_classifier.py
+
+    - name: Execute script
+      run: python quake_classifier.py
+
+    - name: Commit and push changes
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        if ! git diff --quiet || ! git diff --staged --quiet; then
+          git add .
+          git commit -m "Update files"
+          git push --force
+        fi
