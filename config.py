@@ -24,7 +24,7 @@ INTENSITY_THRESHOLD = 4
 # Map Configuration
 # Determines the default intensity type displayed on the map
 # Set to 'actual' or 'predicted'
-MAP_INTENSITY_TYPE = "actual"
+MAP_INTENSITY_TYPE = "predicted"
 
 # Minimum magnitude filter (e.g., exclude small tremors)
 MIN_MAGNITUDE = 3
