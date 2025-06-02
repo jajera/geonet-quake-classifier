@@ -20,14 +20,14 @@ A lightweight, real-time earthquake classifier and static map using live data fr
 2. Run the classifier:
 
     ```bash
-    python quake_classifier.py
+    python decision_tree.py
     ```
 
 This will:
 
 - Fetch the latest earthquake data from GeoNet
 - Train a decision tree classifier
-- Generate an interactive map (`quake_map.html`)
+- Generate an interactive map (`decision_tree.html`)
 
 ## Map Features
 

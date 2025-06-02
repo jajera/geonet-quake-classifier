@@ -24,7 +24,7 @@
       // "python.linting.flake8Args": ["--config=./hello-world/pyproject.toml"],
       "python.linting.mypyEnabled": true,
       "python.analysis.extraPaths": [
-        "./hello-world/hello_world"
+        // "./hello-world/hello_world"
       ],
       "files.trimTrailingWhitespace": true,
       "files.trimFinalNewlines": true,

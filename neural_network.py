@@ -1,10 +1,11 @@
 """
-GeoNet Quake Classifier
+GeoNet Quake Classifier - Neural Network
 
 This module provides functionality to fetch, process,
-and classify earthquake data from GeoNet New Zealand's API.
-It includes features for data processing, model training,
-and generating an interactive map visualization.
+and classify earthquake data from GeoNet New Zealand's API
+using a neural network model. It includes features for data
+processing, model training, and generating an interactive
+map visualization.
 """
 
 import json
@@ -14,41 +15,96 @@ from urllib.parse import urlencode
 
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.tree import DecisionTreeClassifier, plot_tree
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, BatchNormalization
+from keras.optimizers import Adam
+from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import classification_report
 
 from config import (
     API_BASE_URL,
     DEFAULT_FILTERS,
     INTENSITY_THRESHOLD,
     DAYS_FILTER,
-    MAP_INTENSITY_TYPE,
+    NEURAL_NETWORK_MAP_INTENSITY_TYPE,
     MIN_MAGNITUDE,
     GEONET_EARTHQUAKE_URL_BASE,
+    NEURAL_NETWORK_CONFIG,
 )
 
 
-class QuakeClassifier:
+class QuakeClassifierNeuralNetwork:
     """
-    A class to handle earthquake data processing and classification.
+    A class to handle earthquake data processing and classification
+    using a neural network model.
 
     This class provides methods to fetch earthquake data from GeoNet,
-    process and filter the data, train a decision tree classifier,
+    process and filter the data, train a neural network classifier,
     and generate map visualization data.
     """
 
     def __init__(self, filters=None):
         """
-        Initialize the QuakeClassifier with optional filters.
+        Initialize the QuakeClassifierNeuralNetwork with optional filters.
 
         Args:
             filters (dict, optional): Custom filters for the GeoNet API query.
                 Defaults to DEFAULT_FILTERS from config.
         """
         self.filters = filters or DEFAULT_FILTERS
-        self.model = DecisionTreeClassifier(random_state=42)
+        self.model = self._build_model()
+        self.scaler = StandardScaler()
         self.api_url = self.build_api_url()
+
+    def _build_model(self):
+        """
+        Build and compile the neural network model.
+
+        Returns:
+            tf.keras.Model: Compiled neural network model.
+        """
+        model = Sequential()
+
+        # Input layer with batch normalization
+        model.add(
+            Dense(
+                NEURAL_NETWORK_CONFIG["hidden_layers"][0],
+                activation=NEURAL_NETWORK_CONFIG["activation"],
+                input_shape=(2,),  # magnitude and depth
+            )
+        )
+        model.add(BatchNormalization())
+        model.add(Dropout(0.3))
+
+        # Hidden layers with batch normalization and dropout
+        # fmt: off
+        for units in NEURAL_NETWORK_CONFIG["hidden_layers"][1:]:
+            model.add(Dense(
+                units,
+                activation=NEURAL_NETWORK_CONFIG["activation"])
+            )
+            model.add(BatchNormalization())
+            model.add(Dropout(0.2))
+
+        # Output layer
+        model.add(Dense(
+            1,
+            activation=NEURAL_NETWORK_CONFIG["output_activation"])
+        )
+
+        # Compile model with a lower learning rate
+        model.compile(
+            optimizer=Adam(
+                learning_rate=NEURAL_NETWORK_CONFIG["learning_rate"]
+            ),
+            loss="binary_crossentropy",
+            metrics=["accuracy"],
+        )
+        # fmt: on
+
+        return model
 
     def build_api_url(self):
         """
@@ -153,13 +209,14 @@ class QuakeClassifier:
         Returns:
             dict: Predicted intensity class and label.
         """
-        pred = self.model.predict([[magnitude, depth]])[0]
-        # fmt: off
+        # Scale the input features
+        scaled_input = self.scaler.transform([[magnitude, depth]])
+        pred = self.model.predict(scaled_input, verbose=0)[0][0]
+        intensity_class = 1 if pred >= 0.5 else 0
         return {
-            "intensity_class": pred,
-            "intensity": "High" if pred else "Low"
+            "intensity_class": intensity_class,
+            "intensity": "High" if intensity_class else "Low",
         }
-        # fmt: on
 
     # fmt: off
     def train_model(
@@ -170,7 +227,7 @@ class QuakeClassifier:
             labels_test
     ):
         """
-        Train the decision tree classifier and generate visualization.
+        Train the neural network model and generate visualization.
 
         Args:
             features_train (pd.DataFrame): Training features.
@@ -181,28 +238,76 @@ class QuakeClassifier:
         Returns:
             float: Model accuracy score.
         """
-        # Train the model using the provided split data
-        self.model.fit(features_train, labels_train)
+        # Scale the features
+        features_train_scaled = self.scaler.fit_transform(features_train)
+        features_test_scaled = self.scaler.transform(features_test)
+
+        # Define callbacks
+        callbacks = [
+            EarlyStopping(
+                monitor="val_loss",
+                patience=10,
+                restore_best_weights=True
+            ),
+            ReduceLROnPlateau(
+                monitor="val_loss",
+                factor=0.5,
+                patience=5,
+                min_lr=1e-6
+            ),
+        ]
+
+        # Train the model
+        history = self.model.fit(
+            features_train_scaled,
+            labels_train,
+            epochs=NEURAL_NETWORK_CONFIG["epochs"],
+            batch_size=NEURAL_NETWORK_CONFIG["batch_size"],
+            validation_split=NEURAL_NETWORK_CONFIG["validation_split"],
+            callbacks=callbacks,
+            verbose=1,
+        )
 
         # Evaluate accuracy
-        accuracy = accuracy_score(
+        _, accuracy = self.model.evaluate(
+            features_test_scaled,
             labels_test,
-            self.model.predict(features_test)
+            verbose=0
         )
 
-        # Plot the decision tree
-        plt.figure(figsize=(10, 6))
-        plot_tree(
-            self.model,
-            filled=True,
-            feature_names=["Magnitude", "Depth"],
-            class_names=["Low", "High"],
-        )
-        plt.savefig("decision_tree.png")
+        # Generate predictions for classification report
+        predictions = (
+            self.model.predict(features_test_scaled) >= 0.5
+        ).astype(int)
+        print("\nClassification Report:")
+        print(classification_report(labels_test, predictions))
+
+        # Plot training history
+        plt.figure(figsize=(12, 4))
+
+        # Plot accuracy
+        plt.subplot(1, 2, 1)
+        plt.plot(history.history["accuracy"])
+        plt.plot(history.history["val_accuracy"])
+        plt.title("Model Accuracy")
+        plt.ylabel("Accuracy")
+        plt.xlabel("Epoch")
+        plt.legend(["Train", "Validation"], loc="lower right")
+
+        # Plot loss
+        plt.subplot(1, 2, 2)
+        plt.plot(history.history["loss"])
+        plt.plot(history.history["val_loss"])
+        plt.title("Model Loss")
+        plt.ylabel("Loss")
+        plt.xlabel("Epoch")
+        plt.legend(["Train", "Validation"], loc="upper right")
+
+        plt.tight_layout()
+        plt.savefig("neural_network_model.png")
         plt.close()
 
         return accuracy
-    # fmt: on
 
     def generate_map_data(self, df):
         """
@@ -215,23 +320,22 @@ class QuakeClassifier:
             list: List of dictionaries containing map marker data.
         """
         map_data = [
-            (
-                {
-                    "lat": row["latitude"],
-                    "lon": row["longitude"],
-                    "magnitude": row["magnitude"],
-                    "depth": row["depth"],
-                    "intensity": row["intensity"],
-                    "timestamp": row["quake_time"].strftime(
-                        "%a, %b %d %Y, %I:%M:%S %p"
-                    ),
-                    "publicid": row["publicid"],
-                }
-            )
+            {
+                "lat": row["latitude"],
+                "lon": row["longitude"],
+                "magnitude": row["magnitude"],
+                "depth": row["depth"],
+                "intensity": row["intensity"],
+                "timestamp": row["quake_time"].strftime(
+                    "%a, %b %d %Y, %I:%M:%S %p"
+                ),
+                "publicid": row["publicid"],
+            }
             for _, row in df.iterrows()
         ]
         print(f"Generated map data for {len(map_data)} earthquakes")
         return map_data
+    # fmt: on
 
 
 def generate_map_html(data, min_magnitude):
@@ -246,12 +350,11 @@ def generate_map_html(data, min_magnitude):
     leaflet_css = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     leaflet_js = "https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
 
-    # fmt: off
     html = f"""
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Earthquake Map</title>
+        <title>Earthquake Map - Neural Network</title>
         <link rel="icon" type="image/png" href="favicon.png">
         <link rel="stylesheet" href="{leaflet_css}" />
         <script src="{leaflet_js}"></script>
@@ -316,7 +419,8 @@ def generate_map_html(data, min_magnitude):
             var legend = L.control({{position: 'bottomright'}});
             legend.onAdd = function(map) {{
                 var div = L.DomUtil.create('div', 'legend');
-                div.innerHTML = '<h4>Intensity</h4>' +
+                div.innerHTML = '<h4>Intensity (' +
+                    '{NEURAL_NETWORK_MAP_INTENSITY_TYPE})</h4>' +
                     '<i style="background: red"></i>' +
                     ' High (Mag >= {min_magnitude})<br>' +
                     '<i style="background: green"></i>' +
@@ -328,17 +432,16 @@ def generate_map_html(data, min_magnitude):
     </body>
     </html>
     """
-    # fmt: on
-    with open("quake_map.html", "w", encoding="utf-8") as f:
+    with open("neural_network.html", "w", encoding="utf-8") as f:
         f.write(html)
-    print("Generated map: quake_map.html")
+    print("Generated map: neural_network.html")
 
 
 def main():
     """
     Main function to run the earthquake classification and mapping process.
     """
-    qc = QuakeClassifier()
+    qc = QuakeClassifierNeuralNetwork()
     features = qc.fetch_data()
     if not features:
         print("No features fetched.")
@@ -354,33 +457,35 @@ def main():
         print("No data after filtering.")
         return
 
-    # Always calculate intensity_class
-    # as the ground truth for training/actual intensity
-    df["intensity_class"] = df["magnitude"].apply(
-        lambda x: 1 if x >= INTENSITY_THRESHOLD else 0
+    # Always calculate intensity based on magnitude
+    df["intensity"] = df["magnitude"].apply(
+        lambda x: "High" if x >= INTENSITY_THRESHOLD else "Low"
     )
 
-    # Determine the final intensity for mapping based on config
-    if MAP_INTENSITY_TYPE == "predicted":
+    # Train the model if needed,
+    # but don't use its predictions for visualization
+    # fmt: off
+    if NEURAL_NETWORK_MAP_INTENSITY_TYPE == "predicted":
         # Prepare data for training
         features = df[["magnitude", "depth"]]
-        labels = df["intensity_class"]
+        labels = df["magnitude"].apply(
+            lambda x: 1 if x >= INTENSITY_THRESHOLD else 0
+        )
 
         # Ensure there's enough data to split and train
-        if len(df) < 2:
-            print("Not enough data to train the model. Skipping prediction.")
-            # Fallback to actual intensity if not enough data for prediction
-            df["intensity"] = df["intensity_class"].apply(
-                lambda x: "High" if x else "Low"
-            )
-        else:
+        if len(df) >= 2:
             # Split data for training and testing
-            # fmt: off
-            (features_train, features_test,
-             labels_train, labels_test) = train_test_split(
-                features, labels, test_size=0.2, random_state=42
+            (
+                features_train,
+                features_test,
+                labels_train,
+                labels_test,
+            ) = train_test_split(
+                features,
+                labels,
+                test_size=0.2,
+                random_state=42,
             )
-            # fmt: on
 
             # Train the model and get accuracy
             acc = qc.train_model(
@@ -388,25 +493,11 @@ def main():
             )
             print(f"Model accuracy: {acc:.2f}")
 
-            # Predict intensity using the trained model
-            # on the entire filtered data
-            df["intensity"] = qc.model.predict(df[["magnitude", "depth"]])
-            # fmt: off
-            df["intensity"] = (
-                df["intensity"].apply(lambda x: "High" if x else "Low")
-            )
-            # fmt: on
-    else:
-        # Use the calculated intensity_class as the actual intensity
-        # fmt: off
-        df["intensity"] = (
-            df["intensity_class"].apply(lambda x: "High" if x else "Low")
-        )
-        # fmt: on
     map_data = qc.generate_map_data(df)
     if not map_data:
         print("No map data generated.")
         return
+    # fmt: on
 
     generate_map_html(map_data, INTENSITY_THRESHOLD)
 

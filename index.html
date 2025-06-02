@@ -11,6 +11,9 @@
         code { background-color: #f4f4f4; padding: 2px 5px; border-radius: 4px; }
         .container { max-width: 800px; margin: auto; }
         .section { margin-bottom: 30px; }
+        .model-section { border-left: 4px solid #333; padding-left: 15px; margin: 20px 0; }
+        .decision-tree { border-left-color: #2c5282; }
+        .neural-network { border-left-color: #2d3748; }
     </style>
 </head>
 <body>
@@ -19,39 +22,76 @@
 
         <div class="section">
             <h2>Project Overview</h2>
-            <p>This project fetches recent earthquake data from GeoNet, classifies earthquakes based on their potential intensity (High or Low) using a Decision Tree model, and visualizes the results on an interactive map.</p>
+            <p>This project fetches recent earthquake data from GeoNet and provides two different approaches for classifying earthquakes based on their potential intensity (High or Low):</p>
+            <ul>
+                <li>A Decision Tree model for simple, interpretable classification</li>
+                <li>A Neural Network model for more complex, potentially more accurate predictions</li>
+            </ul>
             <p><strong>Data Source:</strong> Earthquake data is provided by GeoNet (<a href="https://www.geonet.org.nz/" target="_blank">https://www.geonet.org.nz/</a>).</p>
-            <p><strong>Note:</strong> This project serves as a preliminary attempt to learn and demonstrate the application of Decision Trees for a simple classification task.</p>
         </div>
 
         <div class="section">
             <h2>How to Use</h2>
-            <p>To generate the earthquake map and run the classifier:</p>
+            <p>To generate the earthquake map and run either classifier:</p>
             <ol>
                 <li>Ensure you have Python and the necessary libraries installed (see Technologies Used).</li>
-                <li>Run the main script from your terminal:</li>
-                <p><code>python quake_classifier.py</code></p>
+                <li>Choose your preferred model and run the corresponding script:</li>
+                <ul>
+                    <li>For Decision Tree: <code>python decision_tree.py</code></li>
+                    <li>For Neural Network: <code>python neural_network.py</code></li>
+                </ul>
                 <li>This will fetch data, process it, and generate an HTML map file.</li>
-                <li>Open the generated <code>quake_map.html</code> file in your web browser to view the map.</li>
+                <li>Open the generated HTML file in your web browser to view the map.</li>
             </ol>
         </div>
 
         <div class="section">
+            <h2>Model Approaches</h2>
+
+            <div class="model-section decision-tree">
+                <h3>Decision Tree Model</h3>
+                <p>The Decision Tree approach provides a simple, interpretable model that's great for understanding the classification process. It's particularly useful for:</p>
+                <ul>
+                    <li>Quick initial analysis</li>
+                    <li>Understanding feature importance</li>
+                    <li>Visualizing the decision-making process</li>
+                </ul>
+                <p>Output files: <code>decision_tree.html</code> and <code>decision_tree.png</code></p>
+            </div>
+
+            <div class="model-section neural-network">
+                <h3>Neural Network Model</h3>
+                <p>The Neural Network approach offers a more sophisticated model that can capture complex patterns in the data. It's particularly useful for:</p>
+                <ul>
+                    <li>More accurate predictions</li>
+                    <li>Handling complex relationships in the data</li>
+                    <li>Learning from larger datasets</li>
+                </ul>
+                <p>Output files: <code>neural_network.html</code> and <code>neural_network_model.png</code></p>
+            </div>
+        </div>
+
+        <div class="section">
             <h2>Configuration</h2>
-            <p>You can modify the behavior of the script by editing the <code>config.py</code> file. Key settings include:</p>
+            <p>You can modify the behavior of both models by editing the <code>config.py</code> file. Key settings include:</p>
             <ul>
                 <li><code>DAYS_FILTER</code>: Number of past days to fetch earthquake data for.</li>
                 <li><code>MIN_MAGNITUDE</code>: Minimum magnitude of earthquakes to include.</li>
-                <li><code>INTENSITY_THRESHOLD</code>: Magnitude threshold used to define 'High' vs 'Low' intensity for actual intensity calculation and decision tree training.</li>
-                <li><code>MAP_INTENSITY_TYPE</code>: Set to <code>"predicted"</code> to show intensities predicted by the Decision Tree, or any other value (e.g., <code>"actual"</code>) to show intensities based on the <code>INTENSITY_THRESHOLD</code>.</li>
+                <li><code>INTENSITY_THRESHOLD</code>: Magnitude threshold used to define 'High' vs 'Low' intensity.</li>
+                <li><code>MODEL_TYPE</code>: Choose between <code>"decision_tree"</code> or <code>"neural_network"</code>.</li>
+                <li><code>DECISION_TREE_MAP_INTENSITY_TYPE</code>: Set to <code>"predicted"</code> to show predicted intensities, or <code>"actual"</code> to show intensities based on the threshold.</li>
             </ul>
         </div>
 
         <div class="section">
-            <h2>Earthquake Map</h2>
-            <p>Once you have run the script, you can view the generated map here:</p>
-            <p><a href="quake_map.html">View Earthquake Map</a></p>
-            <p>If <code>MAP_INTENSITY_TYPE</code> is set to "predicted", a <code>decision_tree.png</code> file will also be generated, visualizing the trained model.</p>
+            <h2>Earthquake Maps</h2>
+            <p>View the generated maps:</p>
+            <ul>
+                <li><a href="decision_tree.html">View Decision Tree Map</a></li>
+                <li><a href="decision_tree_model.png">View Decision Tree Model</a></li>
+                <li><a href="neural_network.html">View Neural Network Map</a></li>
+                <li><a href="neural_network_model.png">View Neural Network Model</a></li>
+            </ul>
         </div>
 
         <div class="section">
@@ -60,7 +100,8 @@
                 <li>Python</li>
                 <li>Pandas (for data manipulation)</li>
                 <li>Scikit-learn (for the Decision Tree Classifier)</li>
-                <li>Matplotlib (for plotting the decision tree)</li>
+                <li>TensorFlow/Keras (for the Neural Network model)</li>
+                <li>Matplotlib (for plotting)</li>
                 <li>Leaflet (JavaScript library for interactive maps)</li>
             </ul>
         </div>
