@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  ci:
+  dependencies:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,12 +31,19 @@ jobs:
     - name: Run flake8
       run: flake8 .
 
+  lint:
+    runs-on: ubuntu-latest
+    needs: dependencies
+    permissions:
+      contents: write
+
+    steps:
     - name: Run pylint on utilities
       run: pylint utilities.py
 
   models:
     runs-on: ubuntu-latest
-    needs: ci
+    needs: lint
     permissions:
       contents: write
     strategy:
