@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoNet Earthquake Classifier - Statistical Model (Logistic Regression)</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .header p {
+            margin: 0.5rem 0 0;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        #map {
+            height: calc(100vh - 200px);
+            width: 100%;
+            margin: 0;
+        }
+        .footer {
+            background-color: #34495e;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.8rem;
+        }
+        .footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 GeoNet Earthquake Classifier - Statistical Model (Logistic Regression)</h1>
+        <p>
+            Real-time earthquake intensity predictions using Statistical Model (Logistic Regression)
+        </p>
+    </div>
+    <div id="map"></div>
+    <div class="footer">
+        <p>Data source:
+            <a href="https://www.geonet.org.nz/" target="_blank">
+                GeoNet New Zealand</a> |
+                Earthquakes from the last 7
+                days with magnitude ≥ 3
+        </p>
+        <p>
+            High intensity: Magnitude ≥ 4 |
+                Low intensity: Magnitude < 4</p>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Initialize map centered on New Zealand
+        var map = L.map('map').setView([-41.2865, 174.7762], 6);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Earthquake data
+        var earthquakes = [{"lat": 19.202, "lon": 121.17, "magnitude": 5.225770694629864, "depth": 39.0, "intensity": "High", "timestamp": "Sat, Jun 14 2025, 09:27:44 AM", "publicid": "2025p444330"}, {"lat": -37.25018692, "lon": 176.744873047, "magnitude": 3.068691209660362, "depth": 204.47373962402344, "intensity": "Low", "timestamp": "Sat, Jun 14 2025, 07:57:22 AM", "publicid": "2025p444139"}, {"lat": -17.865840912, "lon": 168.330490112, "magnitude": 5.260034522881422, "depth": 154.7502899169922, "intensity": "High", "timestamp": "Fri, Jun 13 2025, 11:00:20 PM", "publicid": "2025p443138"}, {"lat": -35.269603729, "lon": 179.882598877, "magnitude": 3.448485214990198, "depth": 200.0, "intensity": "Low", "timestamp": "Fri, Jun 13 2025, 09:25:55 PM", "publicid": "2025p442955"}, {"lat": -45.175163269, "lon": 167.339447021, "magnitude": 3.207446710579199, "depth": 33.9586296081543, "intensity": "Low", "timestamp": "Fri, Jun 13 2025, 07:44:56 PM", "publicid": "2025p442764"}, {"lat": -35.990955353, "lon": 178.712142944, "magnitude": 3.1345793606582877, "depth": 188.85789489746094, "intensity": "Low", "timestamp": "Fri, Jun 13 2025, 02:18:13 PM", "publicid": "2025p442152"}, {"lat": -25.746915817, "lon": -179.533355713, "magnitude": 4.113029755712701, "depth": 300.0, "intensity": "Low", "timestamp": "Fri, Jun 13 2025, 02:13:06 PM", "publicid": "2025p442146"}, {"lat": -21.645492554, "lon": -175.84286499, "magnitude": 5.216781607117166, "depth": 100.0, "intensity": "High", "timestamp": "Fri, Jun 13 2025, 01:56:05 PM", "publicid": "2025p442116"}, {"lat": -17.253232956, "lon": -173.853469849, "magnitude": 4.676700962867707, "depth": 100.0, "intensity": "High", "timestamp": "Fri, Jun 13 2025, 08:59:39 AM", "publicid": "2025p441561"}, {"lat": -15.297, "lon": -176.244, "magnitude": 5.162314277180952, "depth": 367.8, "intensity": "High", "timestamp": "Fri, Jun 13 2025, 06:28:32 AM", "publicid": "2025p441276"}, {"lat": -35.710407257, "lon": 179.089996338, "magnitude": 3.5073020013420906, "depth": 192.18980407714844, "intensity": "Low", "timestamp": "Fri, Jun 13 2025, 01:56:28 AM", "publicid": "2025p440760"}, {"lat": -46.725524902, "lon": 165.682449341, "magnitude": 3.7076488568891315, "depth": 5.0, "intensity": "Low", "timestamp": "Fri, Jun 13 2025, 01:47:02 AM", "publicid": "2025p440741"}, {"lat": -32.652309418, "lon": -179.802993774, "magnitude": 3.939138463086961, "depth": 300.0, "intensity": "Low", "timestamp": "Fri, Jun 13 2025, 01:36:21 AM", "publicid": "2025p440723"}, {"lat": -35.727054596, "lon": 179.441146851, "magnitude": 3.098205576947791, "depth": 183.62838745117188, "intensity": "Low", "timestamp": "Fri, Jun 13 2025, 01:21:03 AM", "publicid": "2025p440693"}, {"lat": -34.402168274, "lon": 179.910705566, "magnitude": 3.434030055049487, "depth": 360.23388671875, "intensity": "Low", "timestamp": "Fri, Jun 13 2025, 01:04:01 AM", "publicid": "2025p440662"}, {"lat": -4.849, "lon": 150.9, "magnitude": 5.279237009555358, "depth": 253.2, "intensity": "High", "timestamp": "Thu, Jun 12 2025, 05:25:29 PM", "publicid": "2025p439811"}, {"lat": -39.424507141, "lon": 178.764633179, "magnitude": 3.1582283082794445, "depth": 33.0, "intensity": "Low", "timestamp": "Thu, Jun 12 2025, 10:31:45 AM", "publicid": "2025p439023"}, {"lat": -37.485122681, "lon": 179.968704224, "magnitude": 3.057445132827348, "depth": 33.0, "intensity": "Low", "timestamp": "Thu, Jun 12 2025, 10:17:03 AM", "publicid": "2025p438995"}, {"lat": -38.125164032, "lon": 176.079772949, "magnitude": 4.479010430223338, "depth": 179.06056213378906, "intensity": "High", "timestamp": "Thu, Jun 12 2025, 07:37:40 AM", "publicid": "2025p438696"}, {"lat": -37.692962646, "lon": 177.274459839, "magnitude": 3.008113331314372, "depth": 5.0, "intensity": "Low", "timestamp": "Thu, Jun 12 2025, 05:53:13 AM", "publicid": "2025p438500"}, {"lat": -38.672073364, "lon": 175.379241943, "magnitude": 3.1896339112481393, "depth": 205.0399627685547, "intensity": "Low", "timestamp": "Thu, Jun 12 2025, 05:52:01 AM", "publicid": "2025p438498"}, {"lat": -33.007774353, "lon": 179.554702759, "magnitude": 3.42041437499959, "depth": 449.5830993652344, "intensity": "Low", "timestamp": "Thu, Jun 12 2025, 04:30:28 AM", "publicid": "2025p438347"}, {"lat": -40.079257965, "lon": 174.207931519, "magnitude": 3.9807279016617847, "depth": 90.22591400146484, "intensity": "Low", "timestamp": "Thu, Jun 12 2025, 01:35:29 AM", "publicid": "2025p438017"}, {"lat": -36.036827087, "lon": 178.734085083, "magnitude": 3.3374385305376473, "depth": 102.86211395263672, "intensity": "Low", "timestamp": "Wed, Jun 11 2025, 11:54:00 PM", "publicid": "2025p437826"}, {"lat": -20.593795776, "lon": 169.329391479, "magnitude": 5.055107927753952, "depth": 100.0, "intensity": "High", "timestamp": "Wed, Jun 11 2025, 08:45:48 PM", "publicid": "2025p437480"}, {"lat": -32.933803558, "lon": 179.969741821, "magnitude": 3.4136499120197894, "depth": 325.3578186035156, "intensity": "Low", "timestamp": "Wed, Jun 11 2025, 05:43:10 PM", "publicid": "2025p437132"}, {"lat": -35.68744278, "lon": 178.136352539, "magnitude": 3.6259532031505177, "depth": 208.38490295410156, "intensity": "Low", "timestamp": "Wed, Jun 11 2025, 03:19:59 PM", "publicid": "2025p436861"}, {"lat": 23.33, "lon": 121.621, "magnitude": 5.963800809201316, "depth": 31.1, "intensity": "High", "timestamp": "Wed, Jun 11 2025, 11:00:28 AM", "publicid": "2025p436394"}, {"lat": -13.347977638, "lon": 167.221847534, "magnitude": 5.819441990918887, "depth": 198.97218322753906, "intensity": "High", "timestamp": "Wed, Jun 11 2025, 08:19:29 AM", "publicid": "2025p436080"}, {"lat": -35.783290863, "lon": 178.477340698, "magnitude": 3.293768437441437, "depth": 170.03366088867188, "intensity": "Low", "timestamp": "Wed, Jun 11 2025, 08:10:45 AM", "publicid": "2025p436056"}, {"lat": -33.688709259, "lon": 179.040222168, "magnitude": 3.892741393258047, "depth": 300.0, "intensity": "Low", "timestamp": "Wed, Jun 11 2025, 03:41:30 AM", "publicid": "2025p435552"}, {"lat": -39.908668518, "lon": 176.510452271, "magnitude": 3.151837132172943, "depth": 21.82162857055664, "intensity": "Low", "timestamp": "Wed, Jun 11 2025, 03:29:28 AM", "publicid": "2025p435528"}, {"lat": -42.843852997, "lon": 173.103927612, "magnitude": 3.430684087592317, "depth": 31.42838478088379, "intensity": "Low", "timestamp": "Wed, Jun 11 2025, 02:36:30 AM", "publicid": "2025p435428"}, {"lat": -25.153404236, "lon": -179.928756714, "magnitude": 4.379636271193013, "depth": 553.3810424804688, "intensity": "High", "timestamp": "Wed, Jun 11 2025, 12:43:51 AM", "publicid": "2025p435221"}, {"lat": -20.771448135, "lon": -178.327911377, "magnitude": 4.885456314597003, "depth": 540.4880981445312, "intensity": "High", "timestamp": "Tue, Jun 10 2025, 11:14:50 PM", "publicid": "2025p435055"}, {"lat": -35.764408112, "lon": 178.541702271, "magnitude": 3.333213181709323, "depth": 189.9432373046875, "intensity": "Low", "timestamp": "Tue, Jun 10 2025, 09:12:19 PM", "publicid": "2025p434820"}, {"lat": -33.110389709, "lon": 179.214141846, "magnitude": 3.408700991033013, "depth": 394.4721984863281, "intensity": "Low", "timestamp": "Tue, Jun 10 2025, 06:55:38 PM", "publicid": "2025p434565"}, {"lat": -35.545070648, "lon": 178.743881226, "magnitude": 3.022849921135792, "depth": 243.59156799316406, "intensity": "Low", "timestamp": "Tue, Jun 10 2025, 06:57:18 AM", "publicid": "2025p433216"}, {"lat": -37.030506134, "lon": 177.540512085, "magnitude": 3.067492290467992, "depth": 68.61380767822266, "intensity": "Low", "timestamp": "Mon, Jun 09 2025, 08:14:19 PM", "publicid": "2025p432008"}, {"lat": -36.879299164, "lon": 177.57951355, "magnitude": 3.3249783693520807, "depth": 147.56649780273438, "intensity": "Low", "timestamp": "Mon, Jun 09 2025, 06:30:24 PM", "publicid": "2025p431813"}, {"lat": -34.251384735, "lon": 179.56590271, "magnitude": 3.7208246220537684, "depth": 100.0, "intensity": "Low", "timestamp": "Mon, Jun 09 2025, 04:07:39 PM", "publicid": "2025p431547"}, {"lat": -43.403182983, "lon": 172.423370361, "magnitude": 3.6116796695859383, "depth": 20.491037368774414, "intensity": "Low", "timestamp": "Mon, Jun 09 2025, 01:38:35 PM", "publicid": "2025p431266"}, {"lat": -30.749885559, "lon": -177.906707764, "magnitude": 4.5898094930587, "depth": 269.18865966796875, "intensity": "High", "timestamp": "Mon, Jun 09 2025, 02:46:13 AM", "publicid": "2025p430044"}, {"lat": -20.882894516, "lon": -177.692077637, "magnitude": 4.181343816368381, "depth": 500.0, "intensity": "High", "timestamp": "Sun, Jun 08 2025, 10:48:57 PM", "publicid": "2025p429601"}, {"lat": -32.102497101, "lon": -177.045974731, "magnitude": 4.453735902541625, "depth": 33.0, "intensity": "High", "timestamp": "Sun, Jun 08 2025, 09:16:20 PM", "publicid": "2025p429425"}, {"lat": -33.322994232, "lon": -179.056335449, "magnitude": 3.537673383841112, "depth": 320.1221923828125, "intensity": "Low", "timestamp": "Sun, Jun 08 2025, 10:29:41 AM", "publicid": "2025p428210"}, {"lat": -41.513824463, "lon": 174.30531311, "magnitude": 3.1186003041207053, "depth": 16.941818237304688, "intensity": "Low", "timestamp": "Sun, Jun 08 2025, 10:08:16 AM", "publicid": "2025p428169"}, {"lat": -25.704027176, "lon": -176.290649414, "magnitude": 5.437141901172812, "depth": 100.0, "intensity": "High", "timestamp": "Sun, Jun 08 2025, 09:35:49 AM", "publicid": "2025p428112"}, {"lat": -20.024799347, "lon": -177.564910889, "magnitude": 4.654662365394559, "depth": 593.9686279296875, "intensity": "High", "timestamp": "Sun, Jun 08 2025, 01:40:57 AM", "publicid": "2025p427222"}, {"lat": -47.827, "lon": 116.016, "magnitude": 6.739640642313431, "depth": 10.0, "intensity": "High", "timestamp": "Sat, Jun 07 2025, 11:20:45 PM", "publicid": "2025p426966"}, {"lat": -29.858829498, "lon": 178.358337402, "magnitude": 3.92602270160805, "depth": 100.0, "intensity": "Low", "timestamp": "Sat, Jun 07 2025, 10:07:47 PM", "publicid": "2025p426819"}, {"lat": -40.530593872, "lon": 173.3409729, "magnitude": 3.307640320776261, "depth": 151.01669311523438, "intensity": "Low", "timestamp": "Sat, Jun 07 2025, 06:27:07 PM", "publicid": "2025p426402"}, {"lat": -29.86340332, "lon": -178.177780151, "magnitude": 4.980140826300334, "depth": 348.8081970214844, "intensity": "High", "timestamp": "Sat, Jun 07 2025, 01:20:47 PM", "publicid": "2025p425830"}, {"lat": -38.021690369, "lon": 178.1746521, "magnitude": 3.0078988915823497, "depth": 27.924957275390625, "intensity": "Low", "timestamp": "Sat, Jun 07 2025, 11:57:27 AM", "publicid": "2025p425670"}];
+
+        // Add markers for each earthquake
+        earthquakes.forEach(function(quake) {
+            var color = quake.intensity === 'High' ? 'red' : 'green';
+            var size = Math.max(5, quake.magnitude * 2);
+
+            var marker = L.circleMarker([quake.lat, quake.lon], {
+                radius: size,
+                fillColor: color,
+                color: color,
+                weight: 2,
+                opacity: 0.8,
+                fillOpacity: 0.6
+            }).addTo(map);
+
+            // Create popup with earthquake details
+            var popupContent = `
+                <div style="font-family: Arial, sans-serif;">
+                    <h3 style="margin: 0 0 10px 0; color: #2c3e50;">
+                        Magnitude ${quake.magnitude}
+                    </h3>
+                    <p style="margin: 5px 0;"><strong>Intensity:</strong>
+                        <span style="color: ${color}; font-weight: bold;">
+                            ${quake.intensity}
+                        </span>
+                    </p>
+                    <p style="margin: 5px 0;">
+                        <strong>Depth:</strong> ${quake.depth} km
+                    </p>
+                    <p style="margin: 5px 0;">
+                        <strong>Time:</strong> ${quake.timestamp}
+                    </p>
+                    <p style="margin: 5px 0;"><strong>Location:</strong>
+                        ${quake.lat.toFixed(4)}, ${quake.lon.toFixed(4)}
+                    </p>
+                    <p style="margin: 10px 0 0 0;">
+            <a href="${"https://www.geonet.org.nz/earthquake/"}${quake.publicid}"
+                           target="_blank"
+                           style="color: #3498db; text-decoration: none;">
+                            View on GeoNet →
+                        </a>
+                    </p>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
+        });
+
+        // Add legend
+        var legend = L.control({position: 'bottomright'});
+        legend.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.style.backgroundColor = 'white';
+            div.style.padding = '10px';
+            div.style.border = '2px solid #ccc';
+            div.style.borderRadius = '5px';
+            div.innerHTML = `
+                <h4 style="margin: 0 0 10px 0;">
+                    Intensity (predicted)
+                </h4>
+                <div style="margin: 5px 0;">
+                    <span
+                        style="
+                            display: inline-block;
+                            width: 12px;
+                            height: 12px;
+                            background-color: red;
+                            border-radius: 50%;
+                            margin-right: 8px;"
+                    ></span>
+                    High (Mag >= 4)
+                </div>
+                <div style="margin: 5px 0;">
+                    <span style="
+                        display: inline-block;
+                        width: 12px;
+                        height: 12px;
+                        background-color: green;
+                        border-radius: 50%;
+                        margin-right: 8px;"
+                    ></span>
+                    Low (Mag < 4)
+                </div>
+            `;
+            return div;
+        };
+        legend.addTo(map);
+    </script>
+</body>
+</html>
