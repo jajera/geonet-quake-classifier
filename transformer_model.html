@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoNet Earthquake Classifier - Neural Network Model</title>
+    <title>GeoNet Earthquake Classifier - Transformer Model</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <style>
@@ -14,7 +14,7 @@
             background-color: #f4f4f4;
         }
         .header {
-            background-color: #2d3748;
+            background-color: #6b46c1;
             color: white;
             padding: 1rem;
             text-align: center;
@@ -51,9 +51,9 @@
 </head>
 <body>
     <div class="header">
-        <h1>🧠 GeoNet Earthquake Classifier - Neural Network Model</h1>
+        <h1>🤖 GeoNet Earthquake Classifier - Transformer Model</h1>
         <p>
-            Real-time earthquake intensity predictions using Neural Network Model
+            Real-time earthquake intensity predictions using Transformer Model
         </p>
     </div>
     <div id="map"></div>
@@ -100,7 +100,7 @@
             // Create popup with earthquake details
             var popupContent = `
                 <div style="font-family: Arial, sans-serif;">
-                    <h3 style="margin: 0 0 10px 0; color: #2d3748;">
+                    <h3 style="margin: 0 0 10px 0; color: #6b46c1;">
                         Magnitude ${quake.magnitude}
                     </h3>
                     <p style="margin: 5px 0;"><strong>Intensity:</strong>
@@ -140,7 +140,7 @@
             div.style.borderRadius = '5px';
             div.innerHTML = `
                 <h4 style="margin: 0 0 10px 0;">
-                    Intensity (predicted)
+                    Intensity (actual)
                 </h4>
                 <div style="margin: 5px 0;">
                     <span

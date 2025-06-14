@@ -10,10 +10,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  ci:
+  models:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    strategy:
+      matrix:
+        model: [
+          'decision_tree',
+          'neural_network',
+          'statistical_model',
+          'ml_model',
+          'neural_model',
+          'transformer_model'
+        ]
 
     steps:
     - name: Checkout code
@@ -33,24 +43,55 @@ jobs:
     - name: Run flake8
       run: flake8 .
 
-    - name: Run pylint
-      run: |
-        pylint decision_tree.py
-        pylint neural_network.py
+    - name: Run pylint on ${{ matrix.model }}
+      run: pylint ${{ matrix.model }}.py
 
-    - name: Execute scripts
+    - name: Execute ${{ matrix.model }} script
+      run: python ${{ matrix.model }}.py
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.model }}-outputs
+        path: |
+          ${{ matrix.model }}.html
+          ${{ matrix.model }}.png
+        retention-days: 1
+
+  commit:
+    runs-on: ubuntu-latest
+    needs: models
+    permissions:
+      contents: write
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install core dependencies
+      run: pip install -r requirements.txt
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+
+    - name: Move artifacts to root
       run: |
-        python decision_tree.py
-        python neural_network.py
+        find . -name "*.html" -path "./*/outputs/*" -exec mv {} . \;
+        find . -name "*.png" -path "./*/outputs/*" -exec mv {} . \;
 
     - name: Commit and push changes
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
 
         if ! git diff --quiet || ! git diff --staged --quiet; then
           git add .
-          git commit -m "Update files"
+          git commit -m "Update model outputs"
           git push --force
         fi

@@ -14,6 +14,10 @@
         .model-section { border-left: 4px solid #333; padding-left: 15px; margin: 20px 0; }
         .decision-tree { border-left-color: #2c5282; }
         .neural-network { border-left-color: #2d3748; }
+        .statistical-model { border-left-color: #8b5a3c; }
+        .ml-model { border-left-color: #4a5568; }
+        .neural-model { border-left-color: #4a5568; }
+        .transformer-model { border-left-color: #6b46c1; }
     </style>
 </head>
 <body>
@@ -22,10 +26,14 @@
 
         <div class="section">
             <h2>Project Overview</h2>
-            <p>This project fetches recent earthquake data from GeoNet and provides two different approaches for classifying earthquakes based on their potential intensity (High or Low):</p>
+            <p>This project fetches recent earthquake data from GeoNet and provides six different approaches for classifying earthquakes based on their potential intensity (High or Low):</p>
             <ul>
                 <li>A Decision Tree model for simple, interpretable classification</li>
-                <li>A Neural Network model for more complex, potentially more accurate predictions</li>
+                <li>A Neural Network model (TensorFlow) for deep learning predictions</li>
+                <li>A Statistical model using traditional machine learning algorithms (Logistic Regression and Naive Bayes)</li>
+                <li>A Machine Learning model focused on Logistic Regression optimization</li>
+                <li>A Neural Model (MLPClassifier) for neural network simulation without TensorFlow</li>
+                <li>A Transformer Model (DistilBERT) for attention-based text classification</li>
             </ul>
             <p><strong>Data Source:</strong> Earthquake data is provided by GeoNet (<a href="https://www.geonet.org.nz/" target="_blank">https://www.geonet.org.nz/</a>).</p>
         </div>
@@ -38,7 +46,11 @@
                 <li>Choose your preferred model and run the corresponding script:</li>
                 <ul>
                     <li>For Decision Tree: <code>python decision_tree.py</code></li>
-                    <li>For Neural Network: <code>python neural_network.py</code></li>
+                    <li>For Neural Network (TensorFlow): <code>python neural_network.py</code></li>
+                    <li>For Statistical Model: <code>python statistical_model.py</code></li>
+                    <li>For ML Model: <code>python ml_model.py</code></li>
+                    <li>For Neural Model (MLPClassifier): <code>python neural_model.py</code></li>
+                    <li>For Transformer Model (DistilBERT): <code>python transformer_model.py</code></li>
                 </ul>
                 <li>This will fetch data, process it, and generate an HTML map file.</li>
                 <li>Open the generated HTML file in your web browser to view the map.</li>
@@ -69,17 +81,69 @@
                 </ul>
                 <p>Output files: <code>neural_network.html</code> and <code>neural_network_model.png</code></p>
             </div>
+
+            <div class="model-section statistical-model">
+                <h3>Statistical Model</h3>
+                <p>The Statistical Model approach provides traditional machine learning algorithms with proven statistical foundations. It supports both Logistic Regression and Naive Bayes classifiers and is particularly useful for:</p>
+                <ul>
+                    <li>Well-established statistical methods with theoretical backing</li>
+                    <li>Baseline comparisons with other models</li>
+                    <li>Fast training and prediction times</li>
+                    <li>Good performance on smaller datasets</li>
+                </ul>
+                <p>Output file: <code>statistical_model.html</code></p>
+            </div>
+
+            <div class="model-section ml-model">
+                <h3>Machine Learning Model</h3>
+                <p>The Machine Learning Model approach focuses specifically on Logistic Regression optimization with advanced features like decision boundary visualization. It's particularly useful for:</p>
+                <ul>
+                    <li>Focused Logistic Regression implementation</li>
+                    <li>Decision boundary visualization</li>
+                    <li>Feature scaling and standardization</li>
+                    <li>Detailed performance metrics and reporting</li>
+                </ul>
+                <p>Output files: <code>ml_model.html</code> and <code>ml_model.png</code></p>
+            </div>
+
+            <div class="model-section neural-model">
+                <h3>Neural Model (MLPClassifier)</h3>
+                <p>The Neural Model approach uses MLPClassifier for neural network simulation without requiring TensorFlow. It's particularly useful for:</p>
+                <ul>
+                    <li>Lightweight neural network implementation</li>
+                    <li>No TensorFlow dependency requirements</li>
+                    <li>Multi-layer perceptron architecture</li>
+                    <li>Scikit-learn integration and consistency</li>
+                </ul>
+                <p>Output files: <code>neural_model.html</code> and <code>neural_model.png</code></p>
+            </div>
+
+            <div class="model-section transformer-model">
+                <h3>Transformer Model (DistilBERT)</h3>
+                <p>The Transformer Model approach uses DistilBERT for attention-based text classification by converting numerical earthquake data into descriptive text. It's particularly useful for:</p>
+                <ul>
+                    <li>Attention-based pattern recognition</li>
+                    <li>Natural language processing techniques</li>
+                    <li>Text representation of numerical data</li>
+                    <li>State-of-the-art transformer architecture</li>
+                </ul>
+                <p>Output file: <code>transformer_model.html</code></p>
+            </div>
         </div>
 
         <div class="section">
             <h2>Configuration</h2>
-            <p>You can modify the behavior of both models by editing the <code>config.py</code> file. Key settings include:</p>
+            <p>You can modify the behavior of all models by editing the <code>config.py</code> file. Key settings include:</p>
             <ul>
                 <li><code>DAYS_FILTER</code>: Number of past days to fetch earthquake data for.</li>
                 <li><code>MIN_MAGNITUDE</code>: Minimum magnitude of earthquakes to include.</li>
                 <li><code>INTENSITY_THRESHOLD</code>: Magnitude threshold used to define 'High' vs 'Low' intensity.</li>
-                <li><code>MODEL_TYPE</code>: Choose between <code>"decision_tree"</code> or <code>"neural_network"</code>.</li>
+                <li><code>MODEL_TYPE</code>: Choose between <code>"decision_tree"</code>, <code>"neural_network"</code>, or <code>"statistical"</code>.</li>
                 <li><code>DECISION_TREE_MAP_INTENSITY_TYPE</code>: Set to <code>"predicted"</code> to show predicted intensities, or <code>"actual"</code> to show intensities based on the threshold.</li>
+                <li><code>STATISTICAL_MODEL_CONFIG</code>: Configure statistical model parameters including algorithm choice (<code>"logistic_regression"</code> or <code>"naive_bayes"</code>) and hyperparameters.</li>
+                <li><code>ML_MODEL_CONFIG</code>: Configure Logistic Regression parameters including solver, regularization strength, and maximum iterations.</li>
+                <li><code>NEURAL_MODEL_CONFIG</code>: Configure MLPClassifier parameters including hidden layer sizes, solver, and learning rate settings.</li>
+                <li><code>TRANSFORMER_MODEL_CONFIG</code>: Configure DistilBERT parameters including model name, sequence length, and training hyperparameters.</li>
             </ul>
         </div>
 
@@ -89,8 +153,15 @@
             <ul>
                 <li><a href="decision_tree.html">View Decision Tree Map</a></li>
                 <li><a href="decision_tree_model.png">View Decision Tree Model</a></li>
-                <li><a href="neural_network.html">View Neural Network Map</a></li>
+                <li><a href="neural_network.html">View Neural Network Map (TensorFlow)</a></li>
                 <li><a href="neural_network_model.png">View Neural Network Model</a></li>
+                <li><a href="statistical_model.html">View Statistical Model Map</a></li>
+                <li><a href="statistical_model.png">View Statistical Model Visualization</a></li>
+                <li><a href="ml_model.html">View ML Model Map</a></li>
+                <li><a href="ml_model.png">View ML Model Visualization</a></li>
+                <li><a href="neural_model.html">View Neural Model Map (MLPClassifier)</a></li>
+                <li><a href="neural_model.png">View Neural Model Visualization</a></li>
+                <li><a href="transformer_model.html">View Transformer Model Map (DistilBERT)</a></li>
             </ul>
         </div>
 
