@@ -1,0 +1,4 @@
+keras>=3.0.0
+matplotlib>=3.10.3
+scikit-learn>=1.7.0
+tensorflow>=2.19.0

@@ -33,6 +33,8 @@ MIN_MAGNITUDE = 3
 # Set to 'actual' or 'predicted'
 DECISION_TREE_MAP_INTENSITY_TYPE = "predicted"
 NEURAL_NETWORK_MAP_INTENSITY_TYPE = "predicted"
+STATISTICAL_MODEL_MAP_INTENSITY_TYPE = "predicted"
+ML_MODEL_MAP_INTENSITY_TYPE = "predicted"
 
 # Neural Network Configuration
 NEURAL_NETWORK_CONFIG = {
@@ -73,4 +75,60 @@ NEURAL_NETWORK_CONFIG = {
         "epochs_range": (50, 200),  # Range for epochs adjustment
     },
     # fmt: on
+}
+
+# Statistical Model Configuration
+STATISTICAL_MODEL_CONFIG = {
+    # Model Type - can be 'naive_bayes' or 'logistic_regression'
+    "model_type": "logistic_regression",
+    # Logistic Regression Parameters
+    "logistic_regression": {
+        "random_state": 42,
+        "max_iter": 1000,
+        "solver": "liblinear",  # Good for small datasets
+    },
+    # Naive Bayes Parameters
+    "naive_bayes": {
+        "var_smoothing": 1e-9,
+    },
+}
+
+# Machine Learning Model Configuration
+ML_MODEL_CONFIG = {
+    # Model Type - focused on logistic regression
+    "model_type": "logistic_regression",
+    # Logistic Regression Parameters
+    "random_state": 42,
+    "max_iter": 1000,
+    "solver": "liblinear",  # Good for small datasets
+    "C": 1.0,  # Regularization strength
+}
+
+# Neural Model Configuration (MLPClassifier)
+NEURAL_MODEL_MAP_INTENSITY_TYPE = "predicted"
+NEURAL_MODEL_CONFIG = {
+    # Model Type - MLPClassifier for neural network simulation
+    "model_type": "MLPClassifier",
+    # MLPClassifier Parameters
+    "hidden_layer_sizes": (8, 4),  # Two hidden layers with 8 and 4 neurons
+    "random_state": 42,
+    "max_iter": 1000,
+    "solver": "adam",  # Adam optimizer
+    "alpha": 0.0001,  # L2 regularization parameter
+    "learning_rate": "constant",  # Learning rate schedule
+}
+
+# Transformer Model Configuration (DistilBERT)
+TRANSFORMER_MODEL_MAP_INTENSITY_TYPE = "actual"
+TRANSFORMER_MODEL_CONFIG = {
+    # Model Type - DistilBERT for transformer-based classification
+    "model_type": "DistilBERT",
+    # Model Parameters
+    "model_name": "distilbert-base-uncased",
+    "max_length": 128,
+    "num_labels": 2,
+    "learning_rate": 2e-5,
+    "batch_size": 16,
+    "num_epochs": 3,
+    "random_state": 42,
 }
