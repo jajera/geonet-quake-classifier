@@ -288,12 +288,15 @@ def main():
     model_name = (
         STATISTICAL_MODEL_CONFIG["model_type"].replace("_", " ").title()
     )  # noqa: E501
+    model_config = {
+        "name": f"Statistical Model ({model_name})",
+        "emoji": "📊",
+        "header_color": "#2c3e50",
+    }
     html_content = utilities.generate_map_html(
         map_data,
         MIN_MAGNITUDE,
-        f"Statistical Model ({model_name})",
-        "📊",
-        "#2c3e50",
+        model_config,
     )
     utilities.save_html_file(html_content, "statistical_model.html")
 

@@ -259,12 +259,15 @@ def main():
         return
 
     # Generate HTML using utilities
+    model_config = {
+        "name": "Neural Model",
+        "emoji": "🧠",
+        "header_color": "#4a5568",
+    }
     html_content = utilities.generate_map_html(
         map_data,
         MIN_MAGNITUDE,
-        "Neural Model",
-        "🧠",
-        "#4a5568",
+        model_config,
         NEURAL_MODEL_MAP_INTENSITY_TYPE,
     )
     utilities.save_html_file(html_content, "neural_model.html")

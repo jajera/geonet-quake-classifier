@@ -359,12 +359,15 @@ def main():
         return
 
     # Generate HTML using utilities
+    model_config = {
+        "name": "Transformer Model",
+        "emoji": "🤖",
+        "header_color": "#6b46c1",
+    }
     html_content = utilities.generate_map_html(
         map_data,
         MIN_MAGNITUDE,
-        "Transformer Model",
-        "🤖",
-        "#6b46c1",
+        model_config,
         TRANSFORMER_MODEL_MAP_INTENSITY_TYPE,
     )
     utilities.save_html_file(html_content, "transformer_model.html")

@@ -154,14 +154,7 @@ def generate_map_data(df):
     return map_data
 
 
-def generate_map_html(
-    data,
-    min_magnitude,
-    model_name,
-    model_emoji,
-    header_color,
-    intensity_type="predicted",
-):
+def generate_map_html(data, min_magnitude, model_config, intensity_type="predicted"):
     """
     Generate an interactive HTML map with earthquake data.
 
@@ -169,12 +162,16 @@ def generate_map_html(
         data (list): List of earthquake data for map markers.
         min_magnitude (float): Minimum magnitude threshold
           for intensity classification.
-        model_name (str): Name of the model (e.g., "Decision Tree Model").
-        model_emoji (str): Emoji to display for the model (e.g., "🌳").
-        header_color (str): CSS color for the header background.
+        model_config (dict): Dictionary containing model display settings:
+            - name (str): Name of the model (e.g., "Decision Tree Model")
+            - emoji (str): Emoji to display for the model (e.g., "🌳")
+            - header_color (str): CSS color for the header background
         intensity_type (str): Type of intensity classification
           ("predicted" or "actual").
     """
+    model_name = model_config.get("name", "Unknown Model")
+    model_emoji = model_config.get("emoji", "🌍")
+    header_color = model_config.get("header_color", "#2c3e50")
     leaflet_css = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     leaflet_js = "https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
 

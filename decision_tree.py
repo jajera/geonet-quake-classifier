@@ -180,8 +180,13 @@ def main():
         return
 
     # Generate HTML using utilities
+    model_config = {
+        "name": "Decision Tree Model",
+        "emoji": "🌳",
+        "header_color": "#2c5282",
+    }
     html_content = utilities.generate_map_html(
-        map_data, MIN_MAGNITUDE, "Decision Tree Model", "🌳", "#2c5282"
+        map_data, MIN_MAGNITUDE, model_config
     )
     utilities.save_html_file(html_content, "decision_tree.html")
 

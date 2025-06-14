@@ -265,12 +265,15 @@ def main():
         return
 
     # Generate HTML using utilities
+    model_config = {
+        "name": "Neural Network Model",
+        "emoji": "🧠",
+        "header_color": "#2d3748",
+    }
     html_content = utilities.generate_map_html(
         map_data,
         MIN_MAGNITUDE,
-        "Neural Network Model",
-        "🧠",
-        "#2d3748",
+        model_config,
         NEURAL_NETWORK_MAP_INTENSITY_TYPE,
     )
     utilities.save_html_file(html_content, "neural_network.html")

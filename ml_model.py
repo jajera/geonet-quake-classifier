@@ -259,12 +259,15 @@ def main():
         return
 
     # Generate HTML using utilities
+    model_config = {
+        "name": "ML Model",
+        "emoji": "🤖",
+        "header_color": "#8b5a3c",
+    }
     html_content = utilities.generate_map_html(
         map_data,
         MIN_MAGNITUDE,
-        "ML Model",
-        "🤖",
-        "#8b5a3c",
+        model_config,
         ML_MODEL_MAP_INTENSITY_TYPE,
     )
     utilities.save_html_file(html_content, "ml_model.html")
