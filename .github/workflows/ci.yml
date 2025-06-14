@@ -106,7 +106,7 @@ jobs:
     needs: models
     permissions:
       contents: write
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'schedule')
 
     steps:
     - name: Checkout code
@@ -133,8 +133,8 @@ jobs:
 
     - name: Move artifacts to root
       run: |
-        find . -name "*.html" -path "./*/outputs/*" -exec mv {} . \;
-        find . -name "*.png" -path "./*/outputs/*" -exec mv {} . \;
+        find . -name "*.html" -path "./*-outputs/*" -exec mv {} . \;
+        find . -name "*.png" -path "./*-outputs/*" -exec mv {} . \;
 
     - name: Commit and push changes
       if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'schedule')
@@ -142,8 +142,13 @@ jobs:
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
 
-        if ! git diff --quiet || ! git diff --staged --quiet; then
-          git add .
-          git commit -m "Update model outputs"
-          git push --force
+        # Add all generated files
+        git add *.html *.png || true
+
+        # Check if there are any changes to commit
+        if ! git diff --quiet --cached; then
+          git commit -m "Update model outputs [skip ci]"
+          git push
+        else
+          echo "No changes to commit"
         fi
