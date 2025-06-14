@@ -154,7 +154,12 @@ def generate_map_data(df):
     return map_data
 
 
-def generate_map_html(data, min_magnitude, model_config, intensity_type="predicted"):
+def generate_map_html(
+    data,
+    min_magnitude,
+    model_config,
+    intensity_type="predicted",
+):  # noqa: E501
     """
     Generate an interactive HTML map with earthquake data.
 

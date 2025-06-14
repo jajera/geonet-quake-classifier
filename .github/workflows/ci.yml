@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
+  ci:
     runs-on: ubuntu-latest
 
     steps:
@@ -36,7 +36,7 @@ jobs:
 
   models:
     runs-on: ubuntu-latest
-    needs: lint
+    needs: ci
     permissions:
       contents: write
     strategy:
