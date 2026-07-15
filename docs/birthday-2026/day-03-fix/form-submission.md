@@ -37,7 +37,7 @@ https://youtu.be/3BJNqb9sP6w
 
 ## Social Post URL
 
-`TBD`
+https://www.linkedin.com/posts/john-ajera_kiro-birthday-week-day-3-fix-a-broken-project-share-7483291944148914178-VYEM/
 
 ## Builder Center Article URL
 
