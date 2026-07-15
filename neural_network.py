@@ -190,7 +190,7 @@ class QuakeClassifierNeuralNetwork:
         plt.legend(["Train", "Validation"], loc="upper right")
 
         plt.tight_layout()
-        plt.savefig("neural_network_model.png")
+        plt.savefig("neural_network.png")
         plt.close()
 
         return accuracy
