@@ -16,6 +16,7 @@ from config import (
 )
 
 import numpy as np
+import matplotlib.pyplot as plt
 import utilities
 
 # Suppress warnings for cleaner output
@@ -289,6 +290,49 @@ class QuakeClassifierTransformer:
         }
 
 
+def generate_visualization(df, acc, model_type):
+    """Generate a visualization PNG for the transformer model."""
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+    # Plot 1: Magnitude distribution by intensity class
+    low = df[df["intensity_class"] == 0]["magnitude"]
+    high = df[df["intensity_class"] == 1]["magnitude"]
+    axes[0].hist(low, bins=15, alpha=0.6, label="Low", color="green")
+    axes[0].hist(high, bins=15, alpha=0.6, label="High", color="red")
+    axes[0].set_xlabel("Magnitude")
+    axes[0].set_ylabel("Count")
+    axes[0].set_title("Magnitude Distribution by Intensity Class")
+    axes[0].legend()
+    axes[0].grid(True, alpha=0.3)
+
+    # Plot 2: Depth vs Magnitude scatter
+    scatter = axes[1].scatter(
+        df["magnitude"],
+        df["depth"],
+        c=df["intensity_class"],
+        cmap=plt.cm.RdYlGn_r,
+        edgecolors="black",
+        alpha=0.7,
+    )
+    axes[1].set_xlabel("Magnitude")
+    axes[1].set_ylabel("Depth (km)")
+    axes[1].set_title(
+        f"Transformer Model ({model_type})\n"
+        f"Depth vs Magnitude (Accuracy: {acc:.4f})"
+    )
+    cbar = plt.colorbar(scatter, ax=axes[1])
+    cbar.set_label("Intensity Class")
+    cbar.set_ticks([0, 1])
+    cbar.set_ticklabels(["Low", "High"])
+    axes[1].grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig("transformer_model.png", dpi=300, bbox_inches="tight")
+    plt.close()
+
+    print("Model visualization saved as 'transformer_model.png'")
+
+
 def main():
     """
     Main function to run the earthquake classification and mapping process.
@@ -351,6 +395,10 @@ def main():
         # Use the calculated intensity_class as the actual intensity
         df = utilities.apply_intensity_labels(df)
         acc = 0.0
+
+    print("\nGenerating visualization...")
+    model_type = "DistilBERT" if TRANSFORMERS_AVAILABLE else "TF-IDF Fallback"
+    generate_visualization(df, acc, model_type)
 
     print("\nGenerating interactive map...")
     map_data = utilities.generate_map_data(df)

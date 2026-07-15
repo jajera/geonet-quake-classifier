@@ -93,7 +93,7 @@ class QuakeClassifierDecisionTree:
             feature_names=["Magnitude", "Depth"],
             class_names=["Low", "High"],
         )
-        plt.savefig("decision_tree_model.png")
+        plt.savefig("decision_tree.png")
         plt.close()
 
         return accuracy
