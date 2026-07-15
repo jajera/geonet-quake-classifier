@@ -29,4 +29,4 @@ Prefer:
 
 ## Published post
 
-`TBD`
+https://www.linkedin.com/posts/john-ajera_kiro-birthday-week-day-3-fix-a-broken-project-share-7483291944148914178-VYEM/

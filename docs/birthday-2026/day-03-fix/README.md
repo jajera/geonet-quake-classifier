@@ -49,6 +49,6 @@ python3 build-demo.py
 - [x] Root README postmortem (150–300 words)
 - [x] Demo MP4 in `captures/`
 - [x] Demo video: https://youtu.be/3BJNqb9sP6w
-- [ ] Social post URL
+- [x] Social post: https://www.linkedin.com/posts/john-ajera_kiro-birthday-week-day-3-fix-a-broken-project-share-7483291944148914178-VYEM/
 - [ ] Builder Center article URL (optional)
 - [ ] `.kiro/` folder present (if required by the form)
